@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 4000
 
-CMD ["node", "authServer.js"]
+CMD ["node", "server.ts"]
