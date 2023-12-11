@@ -1,8 +1,11 @@
 import express from 'express';
 import { Router } from 'express';
 import {createTask, deleteTask, getAllTasks, getTask, updateTask} from "../controllers/taskController";
+import {authenticateUser} from "../middlewares/authenticate";
 
 const router: Router = express.Router();
+
+router.use(authenticateUser);
 
 // GET /tasks - Get all tasks
 router.get('/', getAllTasks);

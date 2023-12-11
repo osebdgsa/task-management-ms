@@ -2,18 +2,15 @@ import express from 'express';
 import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes';
 
-dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 
-mongoose.connect(process.env.MONGODB_URI!, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+
+mongoose.connect('mongodb://localhost/user-authentication-service', {})
     .then(() => {
         console.log('Connected to MongoDB');
         app.listen(PORT, () => {

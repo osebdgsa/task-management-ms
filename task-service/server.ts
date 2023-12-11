@@ -11,7 +11,9 @@ app.use(express.json());
 // MongoDB's connection options
 // to stop tslint from crying about missing properties
 const options = {
-    promiseLibrary: require('bluebird'), useNewUrlParser: true, useUnifiedTopology: true
+    promiseLibrary: require('bluebird'),
+    useNewUrlParser: true,
+    useUnifiedTopology: true
 };
 
 // Connect to MongoDB

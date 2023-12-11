@@ -1,24 +1,15 @@
-import express, { Request, Response } from 'express';
-import { register, login } from '../controllers/authController';
+import express from 'express';
+import {register, login, validateJWT} from '../controllers/authController';
 
 const router = express.Router();
 
 // POST /api/auth/register - User registration route
-router.post('/register', async (req: Request, res: Response) => {
-    try {
-        await register(req, res);
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
+router.post('/register', register);
 
 // POST /api/auth/login - User login route
-router.post('/login', async (req: Request, res: Response) => {
-    try {
-        await login(req, res);
-    } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-});
+router.post('/login', login);
+
+// POST /api/auth/validate-token - Validate JWT token
+router.post('/validate-token', validateJWT);
 
 export default router;
