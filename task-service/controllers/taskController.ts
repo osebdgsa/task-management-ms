@@ -1,72 +1,94 @@
 import { Request, Response } from 'express';
 import { ITask } from '../interfaces/taskInterface';
-import Task from '../models/Task';
+import * as taskService from '../services/taskService';
 
-// GET /tasks - Get all tasks
 export const getAllTasks = async (req: Request, res: Response): Promise<void> => {
     try {
-        const tasks: ITask[] = await Task.find();
+        const tasks: ITask[] = await taskService.getAllTasks();
         res.status(200).json(tasks);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
+
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+            return;
+        }
+
+        res.status(500).json({ message: "Something went wrong" });
     }
 };
 
-// POST /tasks - Create a new task
 export const createTask = async (req: Request, res: Response): Promise<void> => {
-    const task: ITask = new Task({
-        title: req.body.title,
-        description: req.body.description,
-        status: req.body.status,
-        dueDate: req.body.dueDate,
-    });
-
+    const taskData: ITask = req.body;
     try {
-        const newTask: ITask = await task.save();
+        const newTask: ITask = await taskService.createTask(taskData);
         res.status(201).json(newTask);
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: "Bad Request" });
+
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+            return;
+        }
+
+        res.status(500).json({ message: "Something went wrong" });
     }
 };
 
-// PUT /tasks/:id - Update a task by ID
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
     const taskId: string = req.params.id;
-    const updateData: Partial<ITask> = {
-        title: req.body.title,
-        description: req.body.description,
-        status: req.body.status,
-        dueDate: req.body.dueDate,
-    };
-
+    const updateData: Partial<ITask> = req.body;
     try {
-        const updatedTask: ITask | null = await Task.findByIdAndUpdate(taskId, updateData, { new: true });
+        const updatedTask: ITask | null = await taskService.updateTask(taskId, updateData);
         if (updatedTask) {
             res.status(200).json(updatedTask);
         } else {
-            res.status(404).json({ message: "Task not found" });
+            res.status(404).json({ message: 'Task not found' });
         }
     } catch (error) {
         console.error(error);
-        res.status(400).json({ message: "Bad Request" });
+
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+            return;
+        }
+
+        res.status(500).json({ message: "Something went wrong" });
     }
 };
 
-// DELETE /tasks/:id - Delete a task by ID
 export const deleteTask = async (req: Request, res: Response): Promise<void> => {
     const taskId: string = req.params.id;
-
     try {
-        const deletedTask: ITask | null = await Task.findByIdAndDelete(taskId);
+        const deletedTask: ITask | null = await taskService.deleteTask(taskId);
         if (deletedTask) {
             res.status(200).json(deletedTask);
         } else {
-            res.status(404).json({ message: "Task not found" });
+            res.status(404).json({ message: 'Task not found' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
+
+        if (error instanceof Error) {
+            res.status(500).json({ message: error.message });
+            return;
+        }
+
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
+export const getTask = async (req: Request, res: Response): Promise<void> => {
+    const taskId: string = req.params.id;
+    try {
+        const task: ITask | null = await taskService.getTask(taskId);
+        if (task) {
+            res.status(200).json(task);
+        } else {
+            res.status(404).json({ message: 'Task not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
     }
 };
