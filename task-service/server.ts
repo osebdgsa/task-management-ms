@@ -17,7 +17,7 @@ const options = {
 };
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost/task-service', options);
+mongoose.connect('mongodb://mongo:27017/task-service', options);
 
 // Start the server
 const startServer = () => {

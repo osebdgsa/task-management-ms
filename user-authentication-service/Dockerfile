@@ -3,11 +3,13 @@ FROM node:latest
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-
 RUN npm install
 
 COPY . .
 
-EXPOSE 4000
+# Build TypeScript files
+RUN npm run build
 
-CMD ["node", "server.ts"]
+EXPOSE 3001
+
+CMD ["npm", "start"]

@@ -10,7 +10,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 
 
-mongoose.connect('mongodb://localhost/user-authentication-service', {})
+mongoose.connect('mongodb://mongo:27017/user-authentication-service', {})
     .then(() => {
         console.log('Connected to MongoDB');
         app.listen(PORT, () => {

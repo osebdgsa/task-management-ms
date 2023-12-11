@@ -22,15 +22,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -45,32 +36,22 @@ app.use(express_1.default.json());
 // MongoDB's connection options
 // to stop tslint from crying about missing properties
 const options = {
+    promiseLibrary: require('bluebird'),
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true
 };
-// Connect to MongoDB using Mongoose
-function connectToDatabase() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield mongoose.connect('mongodb://localhost:27017/taskManagerDB', options);
-            console.log('Connected to MongoDB');
-        }
-        catch (error) {
-            console.error('MongoDB connection error:', error);
-        }
+// Connect to MongoDB
+mongoose.connect('mongodb://mongo:27017/task-service', options);
+// Start the server
+const startServer = () => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
     });
-}
-// Start the server after successful MongoDB connection
-function startServer() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield connectToDatabase();
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
-    });
-}
-// MongoDB's connection event handling
-mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
+};
+// Error handling
+app.use((err, req, res, next) => {
+    res.status(500).json({ message: err.message });
+});
 // Routes
 app.use('/tasks', taskRoutes_1.default);
 // Default route

@@ -17,16 +17,25 @@ services:
       context: ./user-authentication-service
       dockerfile: Dockerfile
     ports:
-      - "4000:4000"  # Adjust ports as needed
+      - "3001:3001"  # Adjust ports as needed
     volumes:
       - ./user-authentication-service:/usr/src/app  # Mount the directory for live code changes
     depends_on:
       - mongo  # Assuming you have a MongoDB service named 'mongo'
 
   mongo:
-    image: mongo:latest
+    build:
+      context: ./mongodb-setup-local
+      dockerfile: Dockerfile
+    container_name: mongodb
     ports:
       - "27017:27017"  # Map MongoDB's port
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+    driver: local
 
 networks:
   default:

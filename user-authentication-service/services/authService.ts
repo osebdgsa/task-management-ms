@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User'; // Assuming you have a User model
 
+// obviously this is not secure it's only a shortcut
+const secretKey: string = "change_me_pls_or_else";
 export const registerUser = async (username: string, password: string): Promise<boolean> => {
     try {
         const existingUser = await User.findOne({ username });
@@ -36,7 +38,7 @@ export const loginUser = async (username: string, password: string): Promise<str
             return null; // Invalid credentials
         }
 
-        return jwt.sign({username}, process.env.JWT_SECRET!, {expiresIn: '1h'}); // Login successful, return token
+        return jwt.sign({username}, secretKey, {expiresIn: '1h'}); // Login successful, return token
     } catch (error) {
         console.error('Error in user login:', error);
         throw new Error('Login failed');
@@ -48,12 +50,8 @@ export const loginUser = async (username: string, password: string): Promise<str
 export const validateToken = async (token: string): Promise<boolean> => {
     try {
         // Validation logic for the token
-        const decodedToken = jwt.verify(token, 'YOUR_SECRET_KEY');
-        if (decodedToken) {
-            return true;
-        } else {
-            return false;
-        }
+        const decodedToken = jwt.verify(token, secretKey);
+        return !!decodedToken;
     } catch (error) {
         console.error(error);
         return false;
