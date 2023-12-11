@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Adjust ports as needed
+    volumes:
+      - ./task-service:/usr/src/app  # Mount the directory for live code changes
+    depends_on:
+      - mongo  # Assuming you have a MongoDB service named 'mongo'
+
+  user-authentication-service:
+    build:
+      context: ./user-authentication-service
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"  # Adjust ports as needed
+    volumes:
+      - ./user-authentication-service:/usr/src/app  # Mount the directory for live code changes
+    depends_on:
+      - mongo  # Assuming you have a MongoDB service named 'mongo'
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"  # Map MongoDB's port
+
+networks:
+  default:
+    driver: bridge
