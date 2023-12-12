@@ -2,41 +2,55 @@ version: '3.8'
 
 services:
   task-service:
+    networks:
+      - my-network
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=admin
+#      - MONGO_INITDB_ROOT_PASSWORD=admin  # Pass the same MongoDB username and password to other services
     build:
       context: ./task-service
       dockerfile: Dockerfile
     ports:
       - "3000:3000"  # Adjust ports as needed
-    volumes:
-      - ./task-service:/usr/src/app  # Mount the directory for live code changes
     depends_on:
       - mongo  # Assuming you have a MongoDB service named 'mongo'
+      - user-authentication-service
+#    restart: always
 
   user-authentication-service:
+    networks:
+      - my-network
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=admin
+#      - MONGO_INITDB_ROOT_PASSWORD=admin  # Pass the same MongoDB username and password to other services
     build:
       context: ./user-authentication-service
       dockerfile: Dockerfile
     ports:
       - "3001:3001"  # Adjust ports as needed
-    volumes:
-      - ./user-authentication-service:/usr/src/app  # Mount the directory for live code changes
     depends_on:
       - mongo  # Assuming you have a MongoDB service named 'mongo'
+#    restart: always
 
   mongo:
-    build:
-      context: ./mongodb-setup-local
-      dockerfile: Dockerfile
+    image:
+      mongo
     container_name: mongodb
+    command: mongod --bind_ip_all --config /etc/mongo/mongod.conf
     ports:
       - "27017:27017"  # Map MongoDB's port
+    networks:
+      - my-network
     volumes:
-      - mongodb_data:/data/db
+      - ./mongodb-setup-local/init-db-task-service.js:/docker-entrypoint-initdb.d/init-db-task-service.js
+      - ./mongodb-setup-local/init-db-user-authentication-service.js:/docker-entrypoint-initdb.d/init-db-user-authentication-service.js
+      - ./mongodb-setup-local/mongod.conf:/etc/mongo/mongod.conf
 
 volumes:
   mongodb_data:
     driver: local
 
+
 networks:
-  default:
+  my-network:
     driver: bridge

@@ -31,7 +31,7 @@ export const updateTask = async (taskId: string, updateData: Partial<ITask>): Pr
 
 export const deleteTask = async (taskId: string): Promise<ITask | null> => {
     try {
-        const deletedTask: ITask | null = await Task.findByIdAndDelete(taskId);
+        const deletedTask: any = await Task.findByIdAndDelete(taskId);
         return deletedTask;
     } catch (error) {
         throw new Error('Internal Server Error');
