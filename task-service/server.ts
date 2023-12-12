@@ -6,8 +6,12 @@ import cors from 'cors';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const username = process.env.MONGO_INITDB_ROOT_USERNAME || 'admin';
-const password = process.env.MONGO_INITDB_ROOT_PASSWORD || 'admin';
+const username = process.env.MONGO_INITDB_ROOT_USERNAME;
+const password = process.env.MONGO_INITDB_ROOT_PASSWORD;
+
+if (!username || !password) {
+    throw new Error('MongoDB username and password are required!');
+}
 
 // Connect to MongoDB
 const connectWithRetry = async () => {
