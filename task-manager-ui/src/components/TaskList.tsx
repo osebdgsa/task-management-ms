@@ -14,6 +14,7 @@ import {
 import { Task } from "../types/Task";
 import {deleteTask, fetchTasks, updateTask} from "../services/taskHttpService";
 import TaskStatus from "../enums/TaskStatus";
+import {jwtDecode} from "jwt-decode";
 
 const TaskList = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -62,6 +63,34 @@ const TaskList = () => {
     const handleDeleteConfirmation = (taskId: string) => {
         setSelectedTaskId(taskId);
         setOpenConfirmation(true);
+    };
+
+    const handleAssigneeChange = (taskId: string, assignee: string) => {
+        const updatedTasks = tasks.map((task: Task) => {
+            if (task._id === taskId) {
+                return { ...task, assignee: assignee };
+            }
+            return task;
+        });
+        setTasks(updatedTasks);
+    };
+
+    const handleAssignToMe = (taskId: string) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const decodedToken: any = jwtDecode(token);
+            const username: string = decodedToken["username"];
+
+            if (username) {
+                const updatedTasks = tasks.map((task: Task) => {
+                    if (task._id === taskId) {
+                        return { ...task, assignee: username };
+                    }
+                    return task;
+                });
+                setTasks(updatedTasks);
+            }
+        }
     };
 
     const handleDeleteTaskConfirmed = async () => {
@@ -144,12 +173,28 @@ const TaskList = () => {
                             InputLabelProps={{
                                 shrink: true,
                             }}/>
+                        <TextField
+                            value={task.assignee}
+                            fullWidth
+                            label="Assignee"
+                            variant="outlined"
+                            disabled={!editedTasks[task._id]}
+                            sx={{
+                                mb: 2,
+                                bgcolor: 'white',
+                                pointerEvents: editedTasks[task._id] ? 'auto' : 'none',
+                            }}
+                            onChange={(e) => handleAssigneeChange(task._id, e.target.value)}
+                        />
                         {editedTasks[task._id] && (
                             <Button onClick={() => handleTaskUpdate(task)}>Save</Button>
                         )}
                         <Button onClick={() => handleEditToggle(task._id)}>
                             {editedTasks[task._id] ? 'Cancel' : 'Edit'}
                         </Button>
+                        {editedTasks[task._id] && (
+                            <Button onClick={() => handleAssignToMe(task._id)}>Assign to Me</Button>
+                        )}
                         <Button color="error" onClick={() => handleDeleteConfirmation(task._id)}>
                             Delete
                         </Button>

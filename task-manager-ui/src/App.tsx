@@ -3,7 +3,7 @@ import {
     BrowserRouter,
     Routes,
     Route,
-    Link as RouterLink,
+    Link as RouterLink, Navigate,
 } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -11,6 +11,10 @@ import TaskList from './components/TaskList';
 import CreateTask from './components/CreateTask';
 import EditTask from './components/EditTask';
 import { Button, Box } from '@mui/material';
+import Logout from "./components/Logout";
+import NotLoggedIn from "./components/NotLoggedIn";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 const Navigation = () => {
     return (
         <Box display="flex" justifyContent="center" my={2}>
@@ -35,11 +39,26 @@ const App: React.FC = () => {
         <BrowserRouter>
             <Navigation/>
             <Routes>
+                <Route path="/not-logged-in" element={<NotLoggedIn />} />
                 <Route path="/" element={<Login />} />
+                <Route path="/logout" element={<Logout />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/tasks" element={<TaskList />} />
-                <Route path="/create-task" element={<CreateTask />} />
-                <Route path="/edit-task/:id" element={<EditTask />} />
+                <Route path="/tasks" element={
+                        <ProtectedRoute>
+                            <TaskList/>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route path="/create-task" element={
+                    <ProtectedRoute>
+                        <CreateTask/>
+                    </ProtectedRoute>
+                } />
+                <Route path="/edit-task/:id" element={
+                    <ProtectedRoute>
+                        <EditTask/>
+                    </ProtectedRoute>
+                } />
             </Routes>
         </BrowserRouter>
     );

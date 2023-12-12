@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { createTask } from '../services/taskHttpService';
 import TaskStatus from "../enums/TaskStatus";
+import {jwtDecode} from "jwt-decode";
 
 const CreateTask = () => {
     const [taskTitle, setTaskTitle] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
     const [dueDate, setDueDate] = useState(new Date().toISOString().substr(0, 10)); // Default to today's date
     const [status, setStatus] = useState(TaskStatus.BACKLOG);
+    const [assignee, setAssignee] = useState('');
     const [createError, setCreateError] = useState('');
 
     const handleTitleChange = (e: any) => {
@@ -25,6 +27,18 @@ const CreateTask = () => {
         setCreateError('');
     };
 
+    const handleAssignToMe = () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const decodedToken: any = jwtDecode(token);
+            const username: string = decodedToken["username"];
+
+            if (username) {
+                setAssignee(decodedToken["username"]);
+            }
+        }
+    };
+
     const handleStatusChange = (e: any) => {
         setStatus(e.target.value);
         setCreateError('');
@@ -37,6 +51,7 @@ const CreateTask = () => {
                 description: taskDescription,
                 dueDate: new Date(dueDate),
                 status: status,
+                assignee: assignee
             });
 
             setTaskTitle('');
@@ -78,6 +93,20 @@ const CreateTask = () => {
                     variant="outlined"
                     value={dueDate}
                     onChange={handleDueDateChange}
+                    fullWidth
+                />
+            </Box>
+            <Box my={2}>
+                <Button onClick={handleAssignToMe} variant="contained" color="primary">
+                    Assign to Me
+                </Button>
+            </Box>
+            <Box my={2}>
+                <TextField
+                    label="Assignee"
+                    variant="outlined"
+                    value={assignee}
+                    onChange={(e) => setAssignee(e.target.value)}
                     fullWidth
                 />
             </Box>

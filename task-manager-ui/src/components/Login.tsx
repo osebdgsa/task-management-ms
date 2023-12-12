@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { TextField, Button, Box, Typography, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,13 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [loginError, setLoginError] = useState('');
     const navigate = useNavigate(); // Hook for navigation
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/logout'); // Redirect to logout if the user is already logged in
+        }
+    }, [navigate]);
 
     const handleUsernameChange = (e: any) => {
         setUsername(e.target.value);
