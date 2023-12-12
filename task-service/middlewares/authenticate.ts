@@ -6,6 +6,11 @@ interface ValidateTokenResponse {
 }
 
 export const authenticateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (req.method === 'OPTIONS') {
+        next();
+        return;
+    }
+
     const token: string | undefined = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -15,7 +20,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 
     try {
         const response: AxiosResponse<ValidateTokenResponse> = await axios.post<ValidateTokenResponse>(
-            'http://user-auth-service:3001/validate-token',
+            'http://user-authentication-service:3001/api/auth/validate-token',
             {
                 token,
             }
