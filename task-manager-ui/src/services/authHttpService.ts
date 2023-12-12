@@ -30,6 +30,33 @@ const getAuthHttpService = (): AxiosInstance => {
                 return Promise.reject(error);
             }
         );
+
+        authHttpService.interceptors.response.use(
+            (response) => {
+                return response;
+            },
+            async (error) => {
+                const originalRequest = error.config;
+
+                if (error.response?.status === 401 && !originalRequest._retry) {
+                    originalRequest._retry = true;
+                    try {
+                        const newAccessToken = await refreshAccessToken(); // Implement this function
+                        if (newAccessToken) {
+                            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                            return axios(originalRequest);
+                        } else {
+                            // Handle token refresh failure, logout user or redirect to login page
+                            // For example: authService.logout();
+                            // Or: window.location.href = '/login';
+                        }
+                    } catch (refreshError) {
+                        // Handle refresh error, logout user or redirect to login page
+                    }
+                }
+                return Promise.reject(error);
+            }
+        );
     }
     return authHttpService;
 };
@@ -51,5 +78,17 @@ const login = async (data: LoginData): Promise<AxiosResponse> => {
         throw new Error(error);
     }
 };
+
+const refreshAccessToken = async () => {
+    try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        const response = await axios.post('/refresh-token', { refreshToken });
+        const newAccessToken = response.data.token;
+        localStorage.setItem('token', newAccessToken);
+        return newAccessToken;
+    } catch (error) {
+        throw new Error('Failed to refresh access token');
+    }
+}
 
 export { register, login };
