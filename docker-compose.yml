@@ -4,9 +4,9 @@ services:
   task-service:
     networks:
       - my-network
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=admin
-#      - MONGO_INITDB_ROOT_PASSWORD=admin  # Pass the same MongoDB username and password to other services
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin  # Pass the same MongoDB username and password to other services
     build:
       context: ./task-service
       dockerfile: Dockerfile
@@ -20,9 +20,9 @@ services:
   user-authentication-service:
     networks:
       - my-network
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=admin
-#      - MONGO_INITDB_ROOT_PASSWORD=admin  # Pass the same MongoDB username and password to other services
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin  # Pass the same MongoDB username and password to other services
     build:
       context: ./user-authentication-service
       dockerfile: Dockerfile
