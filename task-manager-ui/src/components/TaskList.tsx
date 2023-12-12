@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, TextField, Button, MenuItem } from '@mui/material';
+import {
+    Box,
+    Card,
+    CardContent,
+    TextField,
+    Button,
+    MenuItem,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions } from '@mui/material';
 import { Task } from "../types/Task";
-import { fetchTasks, updateTask } from "../services/taskHttpService";
+import {deleteTask, fetchTasks, updateTask} from "../services/taskHttpService";
 import TaskStatus from "../enums/TaskStatus";
 
 const TaskList = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [editedTasks, setEditedTasks] = useState<{ [key: string]: boolean }>({});
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const [openConfirmation, setOpenConfirmation] = useState(false);
 
     useEffect(() => {
         const getTasks = async () => {
@@ -35,6 +48,8 @@ const TaskList = () => {
         setTasks(updatedTasks);
     };
 
+
+
     const handleTaskUpdate = async (updatedTask: Task) => {
         try {
             await updateTask(updatedTask);
@@ -44,10 +59,28 @@ const TaskList = () => {
         }
     };
 
+    const handleDeleteConfirmation = (taskId: string) => {
+        setSelectedTaskId(taskId);
+        setOpenConfirmation(true);
+    };
+
+    const handleDeleteTaskConfirmed = async () => {
+        if (!selectedTaskId) {
+            return;
+        }
+        await deleteTask(selectedTaskId);
+
+        const updatedTasks = tasks.filter((task: Task) => task._id !== selectedTaskId);
+        setTasks(updatedTasks);
+        setSelectedTaskId(null);
+
+        setOpenConfirmation(false);
+        // After deletion, update the tasks list or perform any necessary actions
+    };
     return (
         <Box display="flex" flexWrap="wrap" gap={2}>
             {tasks.map((task: Task) => (
-                <Card key={task._id} variant="outlined" sx={{ width: 500, mb: 2, bgcolor: '#f5f5f5' }}>
+                <><Card key={task._id} variant="outlined" sx={{width: 500, mb: 2, bgcolor: '#f5f5f5'}}>
                     <CardContent>
                         <TextField
                             value={task.title}
@@ -60,8 +93,7 @@ const TaskList = () => {
                                 bgcolor: 'white',
                                 pointerEvents: editedTasks[task._id] ? 'auto' : 'none',
                             }}
-                            onChange={(e) => handleInputChange(task._id, 'title', e.target.value)}
-                        />
+                            onChange={(e) => handleInputChange(task._id, 'title', e.target.value)}/>
                         <TextField
                             multiline
                             rows={4}
@@ -75,8 +107,7 @@ const TaskList = () => {
                                 bgcolor: 'white',
                                 pointerEvents: editedTasks[task._id] ? 'auto' : 'none',
                             }}
-                            onChange={(e) => handleInputChange(task._id, 'description', e.target.value)}
-                        />
+                            onChange={(e) => handleInputChange(task._id, 'description', e.target.value)}/>
                         <TextField
                             select
                             value={task.status}
@@ -112,16 +143,33 @@ const TaskList = () => {
                             onChange={(e) => handleInputChange(task._id, 'dueDate', e.target.value)}
                             InputLabelProps={{
                                 shrink: true,
-                            }}
-                        />
+                            }}/>
                         {editedTasks[task._id] && (
                             <Button onClick={() => handleTaskUpdate(task)}>Save</Button>
                         )}
                         <Button onClick={() => handleEditToggle(task._id)}>
                             {editedTasks[task._id] ? 'Cancel' : 'Edit'}
                         </Button>
+                        <Button color="error" onClick={() => handleDeleteConfirmation(task._id)}>
+                            Delete
+                        </Button>
                     </CardContent>
-                </Card>
+                </Card><Dialog open={openConfirmation} onClose={() => setOpenConfirmation(false)}>
+                    <DialogTitle>Confirm Deletion</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this task?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setOpenConfirmation(false)} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteTaskConfirmed} color="error">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog></>
             ))}
         </Box>
     );

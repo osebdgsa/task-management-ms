@@ -54,4 +54,14 @@ const updateTask = async (updatedTask: Task): Promise<AxiosResponse> => {
     }
 };
 
-export { createTask, fetchTasks, updateTask };
+const deleteTask = async (taskId: string): Promise<AxiosResponse> => {
+    try {
+        const response = await getTaskHttpService().delete(`/tasks/${taskId}`);
+        return response;
+    } catch (error: any) {
+        throw new Error(error);
+    }
+};
+
+
+export { createTask, fetchTasks, updateTask, deleteTask };
